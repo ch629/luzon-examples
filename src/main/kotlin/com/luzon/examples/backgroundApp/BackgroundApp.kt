@@ -6,28 +6,42 @@ import com.luzon.rd.TokenRDStream
 import com.luzon.rd.expression.accept
 import com.luzon.reflectionEngine.ReflectionEngine
 import com.luzon.reflectionEngine.annotations.LzMethod
-import com.luzon.runtime.Environment
-import com.luzon.runtime.LzObject
-import com.luzon.runtime.nullObject
-import com.luzon.runtime.primitiveObject
+import com.luzon.runtime.*
 import com.luzon.runtime.visitors.ClassVisitor
 import javafx.application.Application
 import javafx.scene.Parent
 import javafx.scene.Scene
+import javafx.scene.control.Menu
+import javafx.scene.control.MenuBar
+import javafx.scene.control.MenuItem
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Pane
 import javafx.stage.Stage
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class BackgroundApp : Application() {
     val pane = Pane()
-    val mouseHandler = Environment.global.invokeFunction("MouseHandler", emptyList())
+    var mouseHandler = Environment.global.invokeFunction("MouseHandler", emptyList())
 
     override fun start(primaryStage: Stage) {
+        reloadScript()
+
         primaryStage.scene = Scene(createContent())
         primaryStage.show()
     }
 
-    fun createContent(): Parent = pane.apply {
+    fun createContent(): Parent = Pane().apply {
+        children += MenuBar().apply {
+            menus += Menu("Scripts").apply {
+                items += MenuItem("Reload Scripts").apply {
+                    setOnAction { reloadScript() }
+                }
+            }
+        }
+
+        setPrefSize(500.0, 500.0)
+
         setOnMouseClicked(::mouseClick)
     }
 
@@ -36,6 +50,24 @@ class BackgroundApp : Application() {
             "mouseClick",
             listOf(primitiveObject(event.x), primitiveObject(event.y))
         )
+    }
+
+    fun reloadScript() {
+        GlobalScope.launch {
+            val time = System.currentTimeMillis()
+            Environment.global.reset()
+            ClassReferenceTable.reset()
+
+            ReflectionEngine.registerClassMethods(Methods::class)
+
+            val tokenStream = Tokenizer.fromFile("src\\main\\resources\\Test.lz").findTokens()
+            val tree = RecursiveDescent(TokenRDStream(tokenStream)).parse()
+            tree?.accept(ClassVisitor)
+
+            mouseHandler = Environment.global.invokeFunction("MouseHandler", emptyList())
+
+            println("RELOADED in ${System.currentTimeMillis() - time}ms")
+        }
     }
 }
 
@@ -49,11 +81,5 @@ object Methods {
 }
 
 fun main() {
-    ReflectionEngine.registerClassMethods(Methods::class)
-
-    val tokenStream = Tokenizer.fromFile("src\\main\\resources\\Test.lz").findTokens()
-    val tree = RecursiveDescent(TokenRDStream(tokenStream)).parse()
-    tree?.accept(ClassVisitor)
-
     Application.launch(BackgroundApp::class.java)
 }
