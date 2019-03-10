@@ -17,11 +17,13 @@ import javafx.scene.control.MenuItem
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Pane
 import javafx.stage.Stage
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.javafx.JavaFx as Main
 
 class BackgroundApp : Application() {
-    val pane = Pane()
     var mouseHandler = Environment.global.invokeFunction("MouseHandler", emptyList())
 
     override fun start(primaryStage: Stage) {
@@ -53,19 +55,20 @@ class BackgroundApp : Application() {
     }
 
     fun reloadScript() {
-        GlobalScope.launch {
+        GlobalScope.launch(Dispatchers.Main) {
             val time = System.currentTimeMillis()
-            Environment.global.reset()
-            ClassReferenceTable.reset()
+            mouseHandler = withContext(Dispatchers.Default) {
+                Environment.global.reset()
+                ClassReferenceTable.reset()
 
-            ReflectionEngine.registerClassMethods(Methods::class)
+                ReflectionEngine.registerClassMethods(Methods::class)
 
-            val tokenStream = Tokenizer.fromFile("src\\main\\resources\\Test.lz").findTokens()
-            val tree = RecursiveDescent(TokenRDStream(tokenStream)).parse()
-            tree?.accept(ClassVisitor)
+                val tokenStream = Tokenizer.fromFile("src\\main\\resources\\Test.lz").findTokens()
+                val tree = RecursiveDescent(TokenRDStream(tokenStream)).parse()
+                tree?.accept(ClassVisitor)
 
-            mouseHandler = Environment.global.invokeFunction("MouseHandler", emptyList())
-
+                Environment.global.invokeFunction("MouseHandler", emptyList())
+            }
             println("RELOADED in ${System.currentTimeMillis() - time}ms")
         }
     }
