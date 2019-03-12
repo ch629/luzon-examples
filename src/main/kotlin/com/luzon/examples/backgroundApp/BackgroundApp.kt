@@ -1,13 +1,11 @@
 package com.luzon.examples.backgroundApp
 
-import com.luzon.lexer.Tokenizer
-import com.luzon.rd.RecursiveDescent
-import com.luzon.rd.TokenRDStream
-import com.luzon.rd.expression.accept
-import com.luzon.reflectionEngine.ReflectionEngine
+import com.luzon.Luzon
 import com.luzon.reflectionEngine.annotations.LzMethod
-import com.luzon.runtime.*
-import com.luzon.runtime.visitors.ClassVisitor
+import com.luzon.runtime.Environment
+import com.luzon.runtime.LzObject
+import com.luzon.runtime.nullObject
+import com.luzon.runtime.primitiveObject
 import javafx.application.Application
 import javafx.scene.Parent
 import javafx.scene.Scene
@@ -58,14 +56,10 @@ class BackgroundApp : Application() {
         GlobalScope.launch(Dispatchers.Main) {
             val time = System.currentTimeMillis()
             mouseHandler = withContext(Dispatchers.Default) {
-                Environment.global.reset()
-                ClassReferenceTable.reset()
+                Luzon.resetLanguage()
+                Luzon.registerMethods(Methods::class)
 
-                ReflectionEngine.registerClassMethods(Methods::class)
-
-                val tokenStream = Tokenizer.fromFile("src\\main\\resources\\Test.lz").findTokens()
-                val tree = RecursiveDescent(TokenRDStream(tokenStream)).parse()
-                tree?.accept(ClassVisitor)
+                Luzon.runFile("src\\main\\resources\\Test.lz")
 
                 Environment.global.invokeFunction("MouseHandler", emptyList())
             }
