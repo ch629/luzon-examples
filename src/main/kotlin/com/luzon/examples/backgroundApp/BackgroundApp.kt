@@ -46,7 +46,7 @@ class BackgroundApp : Application() {
     }
 
     fun mouseClick(event: MouseEvent) {
-        mouseHandler?.invokeFunction(
+        mouseHandler.invokeFunction(
             "mouseClick",
             listOf(primitiveObject(event.x), primitiveObject(event.y))
         )
@@ -69,7 +69,7 @@ class BackgroundApp : Application() {
 }
 
 object Methods {
-    @LzMethod(args = ["Double"])
+    @LzMethod(args = ["*"])
     fun println(env: Environment, args: List<LzObject>): LzObject {
         println(args[0].value)
 
