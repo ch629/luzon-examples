@@ -22,7 +22,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.javafx.JavaFx as Main
 
 class BackgroundApp : Application() {
-    var mouseHandler = Environment.global.invokeFunction("MouseHandler", emptyList())
+    private var mouseHandler = Environment.global.invokeFunction("MouseHandler", emptyList())
 
     override fun start(primaryStage: Stage) {
         reloadScript()
@@ -31,7 +31,7 @@ class BackgroundApp : Application() {
         primaryStage.show()
     }
 
-    fun createContent(): Parent = Pane().apply {
+    private fun createContent(): Parent = Pane().apply {
         children += MenuBar().apply {
             menus += Menu("Scripts").apply {
                 items += MenuItem("Reload Scripts").apply {
@@ -45,14 +45,14 @@ class BackgroundApp : Application() {
         setOnMouseClicked(::mouseClick)
     }
 
-    fun mouseClick(event: MouseEvent) {
+    private fun mouseClick(event: MouseEvent) {
         mouseHandler.invokeFunction(
             "mouseClick",
             listOf(primitiveObject(event.x), primitiveObject(event.y))
         )
     }
 
-    fun reloadScript() {
+    private fun reloadScript() {
         GlobalScope.launch(Dispatchers.Main) {
             val time = System.currentTimeMillis()
             mouseHandler = withContext(Dispatchers.Default) {
@@ -69,7 +69,7 @@ class BackgroundApp : Application() {
 }
 
 object Methods {
-    @LzMethod(args = ["*"])
+    @LzMethod(args = ["Any"])
     fun println(env: Environment, args: List<LzObject>): LzObject {
         println(args[0].value)
 
