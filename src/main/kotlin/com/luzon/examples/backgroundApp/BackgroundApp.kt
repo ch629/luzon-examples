@@ -1,60 +1,58 @@
 package com.luzon.examples.backgroundApp
 
 import com.luzon.Luzon
-import com.luzon.reflectionEngine.annotations.LzMethod
+import com.luzon.reflection_engine.annotations.LzMethod
 import com.luzon.runtime.Environment
 import com.luzon.runtime.LzObject
 import com.luzon.runtime.nullObject
 import com.luzon.runtime.primitiveObject
 import javafx.application.Application
-import javafx.scene.Parent
-import javafx.scene.Scene
-import javafx.scene.control.Menu
-import javafx.scene.control.MenuBar
-import javafx.scene.control.MenuItem
 import javafx.scene.input.MouseEvent
-import javafx.scene.layout.Pane
 import javafx.stage.Stage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.javafx.JavaFx as Main
+import tornadofx.*
 
-class BackgroundApp : Application() {
-    private var mouseHandler = Environment.global.invokeFunction("MouseHandler", emptyList())
+class NewBackgroundApp : App(NewBackgroundView::class) {
+    override fun start(stage: Stage) {
+        stage.isResizable = false
+        super.start(stage)
+    }
+}
 
-    override fun start(primaryStage: Stage) {
+class NewBackgroundView : View() {
+    private var mouseHandler = nullObject
+
+    init {
         reloadScript()
-
-        primaryStage.scene = Scene(createContent())
-        primaryStage.show()
     }
 
-    private fun createContent(): Parent = Pane().apply {
-        children += MenuBar().apply {
-            menus += Menu("Scripts").apply {
-                items += MenuItem("Reload Scripts").apply {
+    override val root = vbox {
+        setPrefSize(500.0, 500.0)
+
+        menubar {
+            menu("Scripts") {
+                item("Reload Scripts") {
                     setOnAction { reloadScript() }
                 }
             }
         }
 
-        setPrefSize(500.0, 500.0)
+        imageview("file:///C:\\Users\\Zurro\\Documents\\ShareX\\Screenshots\\2018-09\\1.png") {
+            fitToParentSize()
 
-        setOnMouseClicked(::mouseClick)
-    }
+            fitWidth = prefWidth
+            isPreserveRatio = true
 
-    private fun mouseClick(event: MouseEvent) {
-        mouseHandler.invokeFunction(
-            "mouseClick",
-            listOf(primitiveObject(event.x), primitiveObject(event.y))
-        )
+            setOnMouseClicked(::mouseClick)
+        }
     }
 
     private fun reloadScript() {
         GlobalScope.launch(Dispatchers.Main) {
-            val time = System.currentTimeMillis()
+            val timer = Timer()
             mouseHandler = withContext(Dispatchers.Default) {
                 Luzon.resetLanguage()
                 Luzon.registerMethods(Methods::class)
@@ -63,20 +61,34 @@ class BackgroundApp : Application() {
 
                 Environment.global.invokeFunction("MouseHandler", emptyList())
             }
-            println("RELOADED in ${System.currentTimeMillis() - time}ms")
+            println(timer.timeString("RELOADED"))
         }
+    }
+
+    private fun mouseClick(event: MouseEvent) {
+        mouseHandler.invokeFunction(
+            "mouseClick",
+            listOf(primitiveObject(event.x), primitiveObject(event.y))
+        )
     }
 }
 
 object Methods {
     @LzMethod(args = ["Any"])
-    fun println(env: Environment, args: List<LzObject>): LzObject {
-        println(args[0].value)
+    fun println(args: List<Any>): LzObject {
+        println(args[0])
 
         return nullObject
     }
 }
 
-fun main() {
-    Application.launch(BackgroundApp::class.java)
+class Timer {
+    private val startTime = System.currentTimeMillis()
+
+    fun time() = System.currentTimeMillis() - startTime
+    fun timeString(text: String) = "$text in ${time()}ms"
+}
+
+fun main(args: Array<String>) {
+    Application.launch(NewBackgroundApp::class.java, *args)
 }
