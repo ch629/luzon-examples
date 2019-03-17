@@ -7,6 +7,7 @@ import com.luzon.runtime.LzObject
 import com.luzon.runtime.nullObject
 import com.luzon.runtime.primitiveObject
 import javafx.application.Application
+import javafx.geometry.Rectangle2D
 import javafx.scene.input.MouseEvent
 import javafx.stage.Stage
 import kotlinx.coroutines.Dispatchers
@@ -40,7 +41,7 @@ class NewBackgroundView : View() {
             }
         }
 
-        imageview("file:///C:\\Users\\Zurro\\Documents\\ShareX\\Screenshots\\2018-09\\1.png") {
+        imageview("https://cdn.pixabay.com/photo/2016/02/18/20/02/seljalandsfoss-1207955_960_720.jpg") {
             fitToParentSize()
 
             fitWidth = prefWidth
@@ -54,6 +55,7 @@ class NewBackgroundView : View() {
         GlobalScope.launch(Dispatchers.Main) {
             val timer = Timer()
             mouseHandler = withContext(Dispatchers.Default) {
+                ClickRegionManager.reset()
                 Luzon.resetLanguage()
                 Luzon.registerMethods(Methods::class)
 
@@ -61,6 +63,9 @@ class NewBackgroundView : View() {
 
                 Environment.global.invokeFunction("MouseHandler", emptyList())
             }
+
+            mouseHandler.invokeFunction("init", emptyList())
+
             println(timer.timeString("RELOADED"))
         }
     }
@@ -70,13 +75,34 @@ class NewBackgroundView : View() {
             "mouseClick",
             listOf(primitiveObject(event.x), primitiveObject(event.y))
         )
+
+        mouseHandler.invokeFunction("regionClick", listOf(primitiveObject(ClickRegionManager.click(event.x, event.y))))
     }
+}
+
+object ClickRegionManager {
+    private val regions = mutableListOf<Rectangle2D>()
+
+    fun reset() = regions.clear()
+
+    fun addRegion(x: Double, y: Double, width: Double, height: Double) {
+        regions += Rectangle2D(x, y, width, height)
+    }
+
+    fun click(x: Double, y: Double) = regions.indexOfFirst { it.contains(x, y) }
 }
 
 object Methods {
     @LzMethod(args = ["Any"])
     fun println(args: List<Any>): LzObject {
         println(args[0])
+
+        return nullObject
+    }
+
+    @LzMethod(args = ["Double", "Double", "Double", "Double"])
+    fun addRegion(args: List<Any>): LzObject {
+        ClickRegionManager.addRegion(args[0] as Double, args[1] as Double, args[2] as Double, args[3] as Double)
 
         return nullObject
     }

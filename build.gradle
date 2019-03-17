@@ -42,7 +42,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-javafx:1.0.1"
 
     implementation "org.jetbrains.kotlin:kotlin-reflect"
-    implementation "com.luzon:luzon:1.0.1"
+    implementation "com.luzon:luzon:1.0.2"
     implementation "no.tornado:tornadofx:1.7.17"
 
     implementation "ch.qos.logback:logback-classic:1.3.0-alpha4"
