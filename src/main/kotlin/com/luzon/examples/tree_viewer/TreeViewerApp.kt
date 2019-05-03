@@ -6,7 +6,9 @@ import com.luzon.recursive_descent.TokenRDStream
 import com.luzon.recursive_descent.expression.accept
 import javafx.application.Application
 import javafx.scene.control.TreeItem
-import javafx.scene.layout.HBox
+import javafx.scene.control.TreeView
+import javafx.scene.layout.VBox
+import javafx.stage.FileChooser
 import javafx.stage.Stage
 import tornadofx.*
 
@@ -22,15 +24,29 @@ class TreeViewerApp : App(TreeViewView::class) {
 }
 
 class TreeViewView : View() {
-    override val root = HBox()
+    private val treeView: TreeView<Group>
+    override val root = VBox()
 
     init {
         with(root) {
-            val ast =
-                RecursiveDescent(TokenRDStream(Tokenizer.fromFile("src\\main\\resources\\Test.lz").findTokens())).parse()!!
+            menubar {
+                menu("Scripts") {
+                    item("Load Script") {
+                        setOnAction {
+                            val file = chooseFile(
+                                "Choose a Script",
+                                arrayOf(FileChooser.ExtensionFilter("Luzon Files (*.lz)", "*.lz"))
+                            ).firstOrNull()
 
-            treeview<Group> {
-                root = TreeItem(ast.accept(TreeVisitor))
+                            if (file != null)
+                                loadScript(file.absolutePath)
+                        }
+                    }
+                }
+            }
+
+            treeView = treeview {
+                root = getNodes("src\\main\\resources\\Test.lz")
                 root.isExpanded = true
 
                 cellFormat { text = it.name }
@@ -38,6 +54,25 @@ class TreeViewView : View() {
                 populate {
                     it.value.children
                 }
+            }
+        }
+    }
+
+    fun getNodes(path: String): TreeItem<Group> {
+        return TreeItem(
+            RecursiveDescent(TokenRDStream(Tokenizer.fromFile(path).findTokens())).parse()!!.accept(
+                TreeVisitor
+            )
+        )
+    }
+
+    fun loadScript(path: String) {
+        with(treeView) {
+            root = getNodes(path)
+            root.isExpanded = true
+
+            populate {
+                it.value.children
             }
         }
     }

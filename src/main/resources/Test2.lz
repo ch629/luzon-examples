@@ -1,0 +1,30 @@
+class MouseHandler {
+    fun mouseClick(x: Double, y: Double) {
+        println("X: " + x + " Y: " + y)
+    }
+
+    fun test() {
+        println("Testing123")
+    }
+
+    fun init() {
+        //addRegion(0.0, 0.0, 100.0, 100.0)
+        //addRegion(0.0, 100.0, 100.0, 100.0)
+        //addRegion(100.0, 0.0, 100.0, 100.0)
+        //addRegion(100.0, 100.0, 100.0, 100.0)
+
+        for(x in 0..2) {
+            for(y in 0..2) {
+                addRegion((x * 100.0) + (x * 10), (y * 100.0) + (y * 10), 100.0, 100.0)
+            }
+        }
+
+        //fillRect(150.0, 150.0, 100.0, 100.0)
+    }
+
+    fun regionClick(region: Int) {
+        if(region >= 0) { // Valid region clicked
+            println("Clicked Region: " + region)
+        }
+    }
+}
