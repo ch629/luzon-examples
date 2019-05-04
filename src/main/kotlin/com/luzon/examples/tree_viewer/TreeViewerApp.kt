@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
 import javafx.stage.Stage
 import tornadofx.*
+import java.io.File
 
 fun main(args: Array<String>) {
     Application.launch(TreeViewerApp::class.java, *args)
@@ -36,7 +37,9 @@ class TreeViewView : View() {
                             val file = chooseFile(
                                 "Choose a Script",
                                 arrayOf(FileChooser.ExtensionFilter("Luzon Files (*.lz)", "*.lz"))
-                            ).firstOrNull()
+                            ) {
+                                initialDirectory = File(System.getProperty("user.dir"))
+                            }.firstOrNull()
 
                             if (file != null)
                                 loadScript(file.absolutePath)
@@ -50,7 +53,6 @@ class TreeViewView : View() {
                 root.isExpanded = true
 
                 cellFormat { text = it.name }
-                onUserSelect { println(it) }
                 populate {
                     it.value.children
                 }
