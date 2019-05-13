@@ -1,5 +1,6 @@
 package com.luzon.examples.tree_viewer
 
+import com.luzon.examples.background_app.scriptsFolder
 import com.luzon.lexer.Tokenizer
 import com.luzon.recursive_descent.RecursiveDescent
 import com.luzon.recursive_descent.TokenRDStream
@@ -49,7 +50,7 @@ class TreeViewView : View() {
             }
 
             treeView = treeview {
-                root = getNodes("src\\main\\resources\\Test.lz")
+                root = getNodes("${scriptsFolder}MouseHandler.lz")
                 root.isExpanded = true
 
                 cellFormat { text = it.name }

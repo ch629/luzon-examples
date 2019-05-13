@@ -17,7 +17,11 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import tornadofx.*
+import java.io.File
 import kotlin.random.Random
+
+val scriptsFolder =
+    "${File(BackgroundApp::class.java.protectionDomain.codeSource.location.toURI()).toPath().parent}\\scripts\\"
 
 class BackgroundApp : App(BackgroundView::class) {
     override fun start(stage: Stage) {
@@ -65,7 +69,7 @@ class BackgroundView : View() {
                 Luzon.resetLanguage()
                 Luzon.registerMethods(Methods::class)
 
-                Luzon.runFile("src\\main\\resources\\Test.lz")
+                Luzon.runFile("$scriptsFolder\\MouseHandler.lz")
 
                 Environment.global.invokeFunction("MouseHandler", emptyList())
             }
