@@ -1,0 +1,78 @@
+class CLI {
+    fun add() {
+        print("Enter First Number: ")
+        val first = readLine()
+        print("Enter Second Number: ")
+        val second = readLine()
+
+        print("Added Value: ")
+        print(first + second)
+        println()
+        println
+    }
+
+    fun init() {
+        addItem("Add", "add")
+        addItem("Fibonacci", "fib")
+        addItem("Sum", "sum")
+        addItem("Factorial", "fact")
+    }
+
+    fun fib() {
+        print("Enter Fibonacci Input: ")
+        val input = readLine()
+
+        print("Fibonacci of ")
+        print(input)
+        print(" is ")
+        println(fibonacci(input))
+    }
+
+    fun sum() {
+        print("Enter Sum Input: ")
+        val input = readLine()
+
+        print("Sum of ")
+        print(input)
+        print(" is ")
+        println(sum(input))
+    }
+
+    fun fact() {
+        print("Enter Factorial Input: ")
+        val input = readLine()
+
+        print("Factorial of ")
+        print(input)
+        print(" is ")
+        println(factorial(input))
+    }
+
+    fun fibonacci(num: Int): Int {
+        if(num <= 0) {
+            return -1
+        }
+
+        if(num <= 2) {
+            return num - 1
+        }
+
+        return fibonacci(num - 1) + fibonacci(num - 2)
+    }
+
+    fun factorial(num: Int): Int {
+        if(num <= 1) {
+            return 1
+        }
+
+        return factorial(num - 1) * num
+    }
+
+    fun sum(num: Int): Int {
+        if(num <= 1) {
+            return 1
+        }
+
+        return sum(num - 1) + num
+    }
+}
