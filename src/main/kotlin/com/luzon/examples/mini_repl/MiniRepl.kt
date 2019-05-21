@@ -26,9 +26,10 @@ fun evaluateRepl() {
 
     do {
         print("Enter Expression (x to exit): ")
-        val inp = scanner.nextLine() + " "
+        val inp = scanner.nextLine()
 
-        println("Result: ${evaluate(inp)}")
+        if (inp != "x")
+            println("Result: ${evaluate("$inp ")}")
     } while (inp != "x")
 }
 
