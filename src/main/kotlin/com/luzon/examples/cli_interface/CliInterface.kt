@@ -1,6 +1,7 @@
 package com.luzon.examples.cli_interface
 
 import com.luzon.Luzon
+import com.luzon.examples.background_app.scriptsFolder
 import com.luzon.reflection_engine.annotations.LzMethod
 import com.luzon.runtime.Environment
 import com.luzon.runtime.LzObject
@@ -47,8 +48,9 @@ object Methods {
     fun readLine(args: List<Any>) = primitiveObject(scanner.nextInt())
 }
 
-fun main() {
-    Luzon.runFile("src\\main\\resources\\CLI.lz")
+fun startCli() {
+    Luzon.runFile("${scriptsFolder}CLI.lz")
+//    Luzon.runFile("src\\main\\resources\\CLI.lz")
     Luzon.registerMethods(Methods::class)
     val cliClass = Environment.global.invokeFunction("CLI", emptyList())
     cliClass.invokeFunction("init", emptyList())
@@ -67,4 +69,8 @@ fun main() {
             cliClass.invokeFunction(menuItems[line].methodName, emptyList())
         }
     } while (line >= 0)
+}
+
+fun main() {
+    startCli()
 }
